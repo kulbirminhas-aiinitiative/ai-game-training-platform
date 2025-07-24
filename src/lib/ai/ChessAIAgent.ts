@@ -32,6 +32,19 @@ export interface AgentKnowledge {
   positionEvaluations: Map<string, number>;
   tacticPatterns: Map<string, { pattern: string; solution: string; frequency: number }>;
   endgameTablebase: Map<string, { bestMove: string; evaluation: number }>;
+  literature: {
+    booksStudied: string[];
+    masterGamesAnalyzed: number;
+    openingTheory: Map<string, { eco: string; keyIdeas: string[]; masterFrequency: number }>;
+    endgameStudies: Map<string, { technique: string; difficulty: string; mastery: number }>;
+  };
+  onlineExperience: {
+    gamesPlayed: number;
+    platforms: string[];
+    winRate: { [platform: string]: number };
+    averageOpponentRating: number;
+    learningsFromGames: string[];
+  };
 }
 
 export interface AgentStats {
@@ -72,6 +85,19 @@ export class ChessAIAgent {
       positionEvaluations: new Map(),
       tacticPatterns: new Map(),
       endgameTablebase: new Map(),
+      literature: {
+        booksStudied: [],
+        masterGamesAnalyzed: 0,
+        openingTheory: new Map(),
+        endgameStudies: new Map(),
+      },
+      onlineExperience: {
+        gamesPlayed: 0,
+        platforms: [],
+        winRate: {},
+        averageOpponentRating: 1500,
+        learningsFromGames: [],
+      },
     };
 
     // Initialize stats
@@ -416,8 +442,236 @@ export class ChessAIAgent {
       this.knowledge.tacticPatterns = new Map(data.knowledge.tacticPatterns);
       this.knowledge.endgameTablebase = new Map(data.knowledge.endgameTablebase);
       
+      // Restore literature and online experience if available
+      if (data.knowledge.literature) {
+        this.knowledge.literature = {
+          ...data.knowledge.literature,
+          openingTheory: new Map(data.knowledge.literature.openingTheory),
+          endgameStudies: new Map(data.knowledge.literature.endgameStudies),
+        };
+      }
+      
+      if (data.knowledge.onlineExperience) {
+        this.knowledge.onlineExperience = data.knowledge.onlineExperience;
+      }
+      
     } catch (error) {
       console.error('Failed to import knowledge:', error);
     }
+  }
+
+  /**
+   * Learn from chess literature and books
+   */
+  public learnFromBook(bookTitle: string, bookData: {
+    games: Array<{ moves: string[]; result: string; rating?: number }>;
+    openings: Array<{ name: string; eco: string; moves: string[]; keyIdeas: string[] }>;
+    endgames: Array<{ position: string; technique: string; difficulty: string }>;
+  }): void {
+    console.log(`📚 ${this.name} is studying "${bookTitle}"`);
+    
+    // Add book to studied list
+    if (!this.knowledge.literature.booksStudied.includes(bookTitle)) {
+      this.knowledge.literature.booksStudied.push(bookTitle);
+    }
+    
+    // Learn from master games
+    this.knowledge.literature.masterGamesAnalyzed += bookData.games.length;
+    
+    for (const game of bookData.games) {
+      this.analyzeGameForLearning(game.moves, game.result, game.rating);
+    }
+    
+    // Learn opening theory
+    for (const opening of bookData.openings) {
+      this.knowledge.literature.openingTheory.set(opening.name, {
+        eco: opening.eco,
+        keyIdeas: opening.keyIdeas,
+        masterFrequency: 0 // Will be updated as we see it in games
+      });
+      
+      // Add to opening book with higher weight for book moves
+      const chess = new Chess();
+      for (const move of opening.moves) {
+        const position = chess.fen();
+        const existing = this.knowledge.openingBook.get(position) || { move, frequency: 0, winRate: 0.5 };
+        existing.frequency += 10; // Higher weight for book moves
+        this.knowledge.openingBook.set(position, existing);
+        
+        if (!chess.move(move)) break;
+      }
+    }
+    
+    // Learn endgame studies
+    for (const endgame of bookData.endgames) {
+      this.knowledge.literature.endgameStudies.set(endgame.position, {
+        technique: endgame.technique,
+        difficulty: endgame.difficulty,
+        mastery: 0.1 // Start with low mastery, improve through practice
+      });
+    }
+    
+    console.log(`✅ Finished studying "${bookTitle}" - Knowledge expanded!`);
+  }
+
+  /**
+   * Record online game experience
+   */
+  public recordOnlineGame(platform: string, opponent: string, opponentRating: number, result: 'win' | 'loss' | 'draw', moves: string[], learnings: string[]): void {
+    console.log(`🌐 Recording online game on ${platform} vs ${opponent} (${opponentRating}): ${result}`);
+    
+    // Update online experience
+    this.knowledge.onlineExperience.gamesPlayed++;
+    
+    if (!this.knowledge.onlineExperience.platforms.includes(platform)) {
+      this.knowledge.onlineExperience.platforms.push(platform);
+    }
+    
+    // Update win rate for platform
+    const currentWinRate = this.knowledge.onlineExperience.winRate[platform] || 0.5;
+    const games = this.knowledge.onlineExperience.gamesPlayed;
+    const resultValue = result === 'win' ? 1 : result === 'loss' ? 0 : 0.5;
+    
+    this.knowledge.onlineExperience.winRate[platform] = 
+      (currentWinRate * (games - 1) + resultValue) / games;
+    
+    // Update average opponent rating
+    this.knowledge.onlineExperience.averageOpponentRating = 
+      (this.knowledge.onlineExperience.averageOpponentRating * (games - 1) + opponentRating) / games;
+    
+    // Store learnings from the game
+    this.knowledge.onlineExperience.learningsFromGames.push(...learnings);
+    
+    // Analyze the game for tactical and strategic insights
+    this.analyzeGameForLearning(moves, result, opponentRating);
+    
+    console.log(`📊 Online experience updated: ${this.knowledge.onlineExperience.gamesPlayed} games, ${(this.knowledge.onlineExperience.winRate[platform] * 100).toFixed(1)}% win rate on ${platform}`);
+  }
+
+  /**
+   * Analyze a game for learning opportunities
+   */
+  private analyzeGameForLearning(moves: string[], result: string, opponentRating?: number): void {
+    const chess = new Chess();
+    const gameValue = result === 'win' ? 1 : result === 'loss' ? 0 : 0.5;
+    
+    // Analyze each position in the game
+    for (let i = 0; i < moves.length; i++) {
+      const position = chess.fen();
+      const move = moves[i];
+      
+      // Update position evaluations based on game outcome
+      const currentEval = this.knowledge.positionEvaluations.get(position) || 0;
+      const weight = opponentRating ? Math.min(opponentRating / 2000, 1) : 0.5;
+      const newEval = currentEval * 0.9 + (gameValue - 0.5) * weight * 0.1;
+      
+      this.knowledge.positionEvaluations.set(position, newEval);
+      
+      // Learn opening moves
+      if (i < 15) {
+        const existing = this.knowledge.openingBook.get(position) || { move, frequency: 0, winRate: 0.5 };
+        existing.frequency++;
+        existing.winRate = (existing.winRate * (existing.frequency - 1) + gameValue) / existing.frequency;
+        this.knowledge.openingBook.set(position, existing);
+      }
+      
+      // Learn endgame positions (when few pieces remain)
+      if (this.countPieces(chess) <= 10) {
+        const evaluation = this.evaluatePosition(chess);
+        this.knowledge.endgameTablebase.set(position, {
+          bestMove: move,
+          evaluation
+        });
+      }
+      
+      if (!chess.move(move)) break;
+    }
+  }
+
+  /**
+   * Get knowledge summary for display
+   */
+  public getKnowledgeSummary(): {
+    totalKnowledge: number;
+    literature: {
+      booksStudied: number;
+      masterGamesAnalyzed: number;
+      openingTheoryKnown: number;
+      endgameStudies: number;
+    };
+    onlineExperience: {
+      gamesPlayed: number;
+      platforms: string[];
+      overallWinRate: number;
+      averageOpponentRating: number;
+      uniqueLearnings: number;
+    };
+  } {
+    const platformWinRates = Object.values(this.knowledge.onlineExperience.winRate);
+    const overallWinRate = platformWinRates.length > 0 
+      ? platformWinRates.reduce((a, b) => a + b, 0) / platformWinRates.length 
+      : 0.5;
+
+    return {
+      totalKnowledge: 
+        this.knowledge.openingBook.size + 
+        this.knowledge.positionEvaluations.size + 
+        this.knowledge.tacticPatterns.size + 
+        this.knowledge.endgameTablebase.size +
+        this.knowledge.literature.masterGamesAnalyzed +
+        this.knowledge.onlineExperience.gamesPlayed,
+      literature: {
+        booksStudied: this.knowledge.literature.booksStudied.length,
+        masterGamesAnalyzed: this.knowledge.literature.masterGamesAnalyzed,
+        openingTheoryKnown: this.knowledge.literature.openingTheory.size,
+        endgameStudies: this.knowledge.literature.endgameStudies.size,
+      },
+      onlineExperience: {
+        gamesPlayed: this.knowledge.onlineExperience.gamesPlayed,
+        platforms: this.knowledge.onlineExperience.platforms,
+        overallWinRate,
+        averageOpponentRating: this.knowledge.onlineExperience.averageOpponentRating,
+        uniqueLearnings: this.knowledge.onlineExperience.learningsFromGames.length,
+      }
+    };
+  }
+
+  /**
+   * Apply knowledge from literature during move selection
+   */
+  private applyLiteratureKnowledge(chess: Chess): string | null {
+    const position = chess.fen();
+    
+    // Check if this position matches known opening theory
+    for (const [openingName, theory] of this.knowledge.literature.openingTheory) {
+      // This is a simplified check - in practice, you'd need more sophisticated pattern matching
+      if (this.knowledge.openingBook.has(position)) {
+        const bookMove = this.knowledge.openingBook.get(position)!;
+        console.log(`📖 Using ${openingName} theory: ${bookMove.move}`);
+        return bookMove.move;
+      }
+    }
+    
+    // Check for endgame study positions
+    const studyMove = this.knowledge.literature.endgameStudies.get(position);
+    if (studyMove && studyMove.mastery > 0.5) {
+      console.log(`♔ Applying endgame study: ${studyMove.technique}`);
+      return this.knowledge.endgameTablebase.get(position)?.bestMove || null;
+    }
+    
+    return null;
+  }
+
+  private countPieces(chess: Chess): number {
+    const board = chess.board();
+    let count = 0;
+    
+    for (let rank = 0; rank < 8; rank++) {
+      for (let file = 0; file < 8; file++) {
+        if (board[rank][file]) count++;
+      }
+    }
+    
+    return count;
   }
 }

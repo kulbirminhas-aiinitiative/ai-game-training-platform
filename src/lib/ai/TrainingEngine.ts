@@ -1,5 +1,6 @@
 import { Chess } from 'chess.js';
 import { ChessAIAgent, AgentMemory, LearningParameters } from './ChessAIAgent';
+import { ChessLearningEngine, ChessBook, OnlineGameConfig } from './ChessLearningEngine';
 
 export interface TrainingSession {
   id: string;
@@ -55,6 +56,11 @@ export class ChessTrainingEngine {
   private activeSessions: Map<string, TrainingSession> = new Map();
   private gameHistory: GameResult[] = [];
   private maxHistorySize: number = 10000;
+  private learningEngine: ChessLearningEngine;
+
+  constructor() {
+    this.learningEngine = new ChessLearningEngine();
+  }
 
   public async startTrainingSession(
     agent1: ChessAIAgent,
@@ -424,5 +430,196 @@ export class ChessTrainingEngine {
       return keys.filter(key => key.startsWith('chess_agent_')).map(key => key.replace('chess_agent_', ''));
     }
     return [];
+  }
+
+  /**
+   * Load chess literature for agent learning
+   */
+  public async loadChessBook(book: ChessBook): Promise<void> {
+    await this.learningEngine.loadChessBook(book);
+  }
+
+  /**
+   * Load PGN database for training
+   */
+  public async loadPGNDatabase(pgnData: string, source: string = 'database'): Promise<number> {
+    return await this.learningEngine.loadPGNDatabase(pgnData, source);
+  }
+
+  /**
+   * Train agent from chess literature
+   */
+  public async trainFromLiterature(
+    agent: ChessAIAgent, 
+    options: {
+      focusAreas?: ('openings' | 'middlegame' | 'endgames' | 'tactics')[];
+      maxGames?: number;
+      minRating?: number;
+      timeControl?: string;
+    } = {}
+  ): Promise<void> {
+    console.log(`📚 Starting literature training for ${agent.name}...`);
+    await this.learningEngine.trainFromLiterature(agent, options);
+    
+    // Save updated agent knowledge
+    this.saveAgentToStorage(agent);
+  }
+
+  /**
+   * Configure agent for online play
+   */
+  public configureOnlinePlay(agent: ChessAIAgent, config: OnlineGameConfig): void {
+    this.learningEngine.configureOnlinePlay(agent.id, config);
+  }
+
+  /**
+   * Enable agent to play online games
+   */
+  public async playOnlineGame(
+    agent: ChessAIAgent, 
+    options: {
+      platform?: 'lichess' | 'chess.com' | 'fics';
+      timeControl?: { initial: number; increment: number };
+      rated?: boolean;
+      numberOfGames?: number;
+    } = {}
+  ): Promise<string[]> {
+    const { numberOfGames = 1, ...gameOptions } = options;
+    const gameIds: string[] = [];
+    
+    console.log(`🌐 ${agent.name} starting ${numberOfGames} online game(s)...`);
+    
+    for (let i = 0; i < numberOfGames; i++) {
+      try {
+        const gameId = await this.learningEngine.playOnlineGame(agent, gameOptions);
+        gameIds.push(gameId);
+        
+        // Add delay between games
+        if (i < numberOfGames - 1) {
+          await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+      } catch (error) {
+        console.error(`Failed to play online game ${i + 1}:`, error);
+      }
+    }
+    
+    // Save updated agent with online experience
+    this.saveAgentToStorage(agent);
+    
+    return gameIds;
+  }
+
+  /**
+   * Get literature training session for agents
+   */
+  public async startLiteratureTrainingSession(
+    agents: ChessAIAgent[],
+    trainingPlan: {
+      books: ChessBook[];
+      pgnDatabases: { data: string; source: string }[];
+      focusAreas: ('openings' | 'middlegame' | 'endgames' | 'tactics')[];
+      rounds: number;
+    }
+  ): Promise<string> {
+    const sessionId = `literature_session_${Date.now()}`;
+    console.log(`📖 Starting literature training session: ${sessionId}`);
+    
+    // Load all books and databases
+    for (const book of trainingPlan.books) {
+      await this.loadChessBook(book);
+    }
+    
+    for (const db of trainingPlan.pgnDatabases) {
+      await this.loadPGNDatabase(db.data, db.source);
+    }
+    
+    // Train each agent from literature
+    for (const agent of agents) {
+      await this.trainFromLiterature(agent, {
+        focusAreas: trainingPlan.focusAreas,
+        maxGames: 1000,
+        minRating: 2000
+      });
+    }
+    
+    // Run training games between literature-trained agents
+    if (agents.length >= 2) {
+      for (let round = 0; round < trainingPlan.rounds; round++) {
+        console.log(`🎭 Literature training round ${round + 1}/${trainingPlan.rounds}`);
+        
+        for (let i = 0; i < agents.length; i++) {
+          for (let j = i + 1; j < agents.length; j++) {
+            await this.playGame(agents[i], agents[j]); // Literature training games
+          }
+        }
+      }
+    }
+    
+    console.log(`✅ Literature training session ${sessionId} completed`);
+    return sessionId;
+  }
+
+  /**
+   * Create a comprehensive training program
+   */
+  public async createMasterTrainingProgram(
+    agent: ChessAIAgent,
+    program: {
+      phase1: { books: ChessBook[]; games: number };
+      phase2: { onlinePlatforms: string[]; gamesPerPlatform: number };
+      phase3: { tournamentRounds: number; opponents: ChessAIAgent[] };
+    }
+  ): Promise<void> {
+    console.log(`🎓 Starting Master Training Program for ${agent.name}`);
+    
+    // Phase 1: Literature Study
+    console.log('📚 Phase 1: Literature Study');
+    for (const book of program.phase1.books) {
+      await this.loadChessBook(book);
+    }
+    
+    await this.trainFromLiterature(agent, {
+      focusAreas: ['openings', 'middlegame', 'endgames', 'tactics'],
+      maxGames: program.phase1.games,
+      minRating: 2200
+    });
+    
+    // Phase 2: Online Experience
+    console.log('🌐 Phase 2: Online Experience');
+    for (const platform of program.phase2.onlinePlatforms) {
+      this.configureOnlinePlay(agent, {
+        platform: platform as 'lichess' | 'chess.com' | 'fics',
+        username: `${agent.name}_bot`,
+        timeControl: { initial: 600, increment: 5 }
+      });
+      
+      await this.playOnlineGame(agent, {
+        platform: platform as 'lichess' | 'chess.com' | 'fics',
+        numberOfGames: program.phase2.gamesPerPlatform,
+        rated: true
+      });
+    }
+    
+    // Phase 3: Tournament Play
+    console.log('🏆 Phase 3: Tournament Training');
+    for (let round = 0; round < program.phase3.tournamentRounds; round++) {
+      console.log(`Tournament Round ${round + 1}/${program.phase3.tournamentRounds}`);
+      
+      for (const opponent of program.phase3.opponents) {
+        const result = await this.playGame(agent, opponent);
+        console.log(`${agent.name} vs ${opponent.name}: ${result.result}`);
+      }
+    }
+    
+    console.log(`🎉 Master Training Program completed for ${agent.name}!`);
+    console.log(`Final Rating: ${agent.stats.eloRating}`);
+    console.log(`Knowledge Summary:`, agent.getKnowledgeSummary());
+  }
+
+  /**
+   * Get learning engine statistics
+   */
+  public getLearningStats() {
+    return this.learningEngine.getLearningStats();
   }
 }

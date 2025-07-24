@@ -15,6 +15,9 @@ export default function Home() {
             <Link href="/ai-training" className="text-gray-300 hover:text-white transition-colors">
               AI vs AI Training
             </Link>
+            <Link href="/enhanced-training" className="text-gray-300 hover:text-purple-400 transition-colors">
+              Enhanced Training
+            </Link>
             <Link href="/training" className="text-gray-300 hover:text-white transition-colors">
               Training Dashboard
             </Link>
@@ -115,7 +118,7 @@ export default function Home() {
         </div>
 
         {/* Features Section */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        <div className="grid md:grid-cols-4 gap-8 mb-16">
           <div className="text-center">
             <div className="bg-gray-800/30 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <Brain className="h-8 w-8 text-purple-400" />
@@ -145,6 +148,18 @@ export default function Home() {
               Play against trained AI agents, watch agent vs agent matches, and analyze game replays.
             </p>
           </div>
+
+          <Link href="/enhanced-training" className="text-center group">
+            <div className="bg-gradient-to-br from-purple-800/30 to-blue-800/30 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:from-purple-700/40 group-hover:to-blue-700/40 transition-all">
+              <svg className="h-8 w-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-yellow-400 transition-colors">Literature Learning</h3>
+            <p className="text-gray-400 group-hover:text-gray-300 transition-colors">
+              Train AI agents from chess books, master games, and enable online play with humans. NEW!
+            </p>
+          </Link>
         </div>
 
         {/* CTA Section */}
