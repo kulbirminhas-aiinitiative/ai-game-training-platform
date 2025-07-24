@@ -113,6 +113,24 @@
 				"focus": false,
 				"panel": "shared"
 			}
+		},
+		{
+			"label": "Add, Commit & Push",
+			"type": "shell",
+			"command": "git add . && git commit -m \"Update project\" && git push origin main",
+			"group": "build",
+			"options": {
+				"shell": {
+					"executable": "powershell.exe",
+					"args": ["-Command"]
+				}
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
 		}
 	]
 }

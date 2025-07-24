@@ -18,6 +18,9 @@ export default function Home() {
             <Link href="/enhanced-training" className="text-gray-300 hover:text-purple-400 transition-colors">
               Enhanced Training
             </Link>
+            <Link href="/enhanced-platform" className="text-gray-300 hover:text-blue-400 transition-colors">
+              🚀 Enhanced Platform
+            </Link>
             <Link href="/training" className="text-gray-300 hover:text-white transition-colors">
               Training Dashboard
             </Link>
@@ -174,6 +177,12 @@ export default function Home() {
               className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
             >
               Start AI vs AI Training
+            </Link>
+            <Link
+              href="/enhanced-platform"
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
+            >
+              🚀 Enhanced AI Platform
             </Link>
             <Link
               href="/training"
