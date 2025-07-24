@@ -12,6 +12,9 @@ export default function Home() {
             <h1 className="text-2xl font-bold text-white">AI Game Training Platform</h1>
           </div>
           <nav className="flex space-x-6">
+            <Link href="/ai-training" className="text-gray-300 hover:text-white transition-colors">
+              AI vs AI Training
+            </Link>
             <Link href="/training" className="text-gray-300 hover:text-white transition-colors">
               Training Dashboard
             </Link>
@@ -37,7 +40,7 @@ export default function Home() {
         </div>
 
         {/* Game Selection */}
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
           {/* Chess Card */}
           <Link href="/chess" className="group">
             <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 hover:border-purple-500 transition-all duration-300 hover:scale-105">
@@ -85,6 +88,30 @@ export default function Home() {
               </div>
             </div>
           </Link>
+
+          {/* AI vs AI Training Card */}
+          <Link href="/ai-training" className="group">
+            <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 hover:border-green-500 transition-all duration-300 hover:scale-105">
+              <div className="flex items-center justify-between mb-6">
+                <Brain className="h-12 w-12 text-green-400 group-hover:text-green-300" />
+                <div className="text-right">
+                  <h3 className="text-2xl font-bold text-white">AI vs AI</h3>
+                  <p className="text-gray-400">Autonomous Learning</p>
+                </div>
+              </div>
+              <p className="text-gray-300 mb-6">
+                Watch AI agents play against each other and learn from their games. 
+                Advanced self-play training with knowledge retention and performance tracking.
+              </p>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-green-400 font-medium">Start Training →</span>
+                <div className="flex space-x-2">
+                  <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                  <span className="text-xs text-gray-400">Self-Play Active</span>
+                </div>
+              </div>
+            </div>
+          </Link>
         </div>
 
         {/* Features Section */}
@@ -128,8 +155,14 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/training"
+              href="/ai-training"
               className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
+            >
+              Start AI vs AI Training
+            </Link>
+            <Link
+              href="/training"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
             >
               Open Training Dashboard
             </Link>
@@ -137,7 +170,7 @@ export default function Home() {
               href="/chess"
               className="bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-medium transition-colors"
             >
-              Start with Chess
+              Play Chess
             </Link>
           </div>
         </div>
