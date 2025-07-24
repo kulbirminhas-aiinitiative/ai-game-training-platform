@@ -1,36 +1,157 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Game Training Platform
 
-## Getting Started
+An advanced AI training platform for chess and poker games where AI agents learn and improve through reinforcement learning and fine-tuning techniques. Built with Next.js 14, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+## 🎮 Features
 
+### Games
+- **Chess**: Interactive chess board with AI vs Human and AI vs AI modes
+- **Poker**: Full Texas Hold'em implementation with multiple AI agents
+- **Real-time gameplay** with smooth animations and responsive design
+
+### AI Training
+- **Reinforcement Learning**: Customizable training parameters
+- **Performance Tracking**: Real-time win rates and learning curves
+- **Agent Configuration**: Adjustable hyperparameters for different strategies
+- **Training Dashboard**: Comprehensive analytics and monitoring
+
+### Analytics
+- **Performance Charts**: Visual representation of learning progress
+- **Game History**: Detailed logs of all matches and training sessions
+- **Strategy Analysis**: AI decision-making insights
+- **Comparative Metrics**: Multiple agent performance comparison
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd gaming-agents-learning
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+## 🎯 Usage
 
-To learn more about Next.js, take a look at the following resources:
+### Home Page
+- Select between Chess and Poker training
+- View overall platform statistics
+- Access training dashboard and analytics
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Chess Training
+- Play against AI agents or watch AI vs AI matches
+- Adjust AI difficulty and training parameters
+- Monitor move history and game analysis
+- Configure search depth, learning rate, and exploration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Poker Training
+- Participate in multi-agent poker games
+- Customize AI strategy parameters (aggression, bluff frequency, risk tolerance)
+- View hand analysis and probability calculations
+- Track training metrics and win rates
 
-## Deploy on Vercel
+### Training Dashboard
+- Monitor all active AI agents
+- Adjust training parameters in real-time
+- View performance charts and learning curves
+- Compare different agent strategies
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🏗️ Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/
+│   ├── chess/           # Chess game interface
+│   ├── poker/           # Poker game interface
+│   ├── training/        # Training dashboard
+│   ├── layout.tsx       # Root layout
+│   └── page.tsx         # Home page
+├── components/          # Reusable components (future)
+├── types/              # TypeScript type definitions (future)
+└── utils/              # Utility functions (future)
+```
+
+## 🧠 AI Architecture
+
+### Chess AI
+- **Engine**: Chess.js for game logic and move validation
+- **Strategy**: Minimax algorithm with alpha-beta pruning
+- **Learning**: Position evaluation neural networks
+- **Training**: Self-play reinforcement learning
+
+### Poker AI
+- **Game Logic**: Custom Texas Hold'em implementation
+- **Strategy**: Monte Carlo Tree Search with neural networks
+- **Features**: Bluffing, pot odds calculation, opponent modeling
+- **Learning**: Deep reinforcement learning with experience replay
+
+## 🛠️ Technologies
+
+- **Frontend**: Next.js 14, React 18, TypeScript
+- **Styling**: Tailwind CSS, Framer Motion
+- **Charts**: Recharts for data visualization
+- **Game Logic**: Chess.js for chess mechanics
+- **Icons**: Lucide React
+- **Development**: ESLint, PostCSS
+
+## 🔧 Configuration
+
+### AI Training Parameters
+- **Learning Rate**: Controls how quickly the AI adapts (0.001 - 0.1)
+- **Batch Size**: Number of games processed together (16 - 512)
+- **Exploration Rate**: Balance between exploration and exploitation (0 - 1)
+- **Network Depth**: Neural network complexity (2 - 20 layers)
+
+### Game-Specific Settings
+- **Chess**: Search depth, evaluation functions, opening book
+- **Poker**: Aggression level, bluff frequency, risk tolerance
+
+## 📊 Performance Tracking
+
+- **Win Rate**: Percentage of games won over time
+- **Game Duration**: Average time per game
+- **Training Hours**: Total time spent learning
+- **Strategy Evolution**: How AI behavior changes over time
+
+## 🚧 Future Enhancements
+
+- **Additional Games**: Go, Backgammon, other strategic games
+- **Advanced AI**: Transformer-based architectures
+- **Multiplayer**: Online tournaments and competitions
+- **Mobile App**: Native mobile version
+- **Cloud Training**: Distributed training across multiple servers
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Links
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Chess.js](https://github.com/jhlywa/chess.js)
+- [Recharts](https://recharts.org)
