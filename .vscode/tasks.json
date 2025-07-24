@@ -13,7 +13,106 @@
 			"isBackground": true,
 			"problemMatcher": [
 				"$tsc"
-			]
+			],
+			"options": {
+				"shell": {
+					"executable": "powershell.exe",
+					"args": ["-Command"]
+				}
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "new"
+			}
+		},
+		{
+			"label": "Build Project",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"group": "build",
+			"options": {
+				"shell": {
+					"executable": "powershell.exe",
+					"args": ["-Command"]
+				}
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "Install Dependencies",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"install"
+			],
+			"group": "build",
+			"options": {
+				"shell": {
+					"executable": "powershell.exe",
+					"args": ["-Command"]
+				}
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "Git Status",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"status"
+			],
+			"group": "build",
+			"options": {
+				"shell": {
+					"executable": "powershell.exe",
+					"args": ["-Command"]
+				}
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "Push to GitHub",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"push",
+				"origin",
+				"main"
+			],
+			"group": "build",
+			"options": {
+				"shell": {
+					"executable": "powershell.exe",
+					"args": ["-Command"]
+				}
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
 		}
 	]
 }
